@@ -1,9 +1,5 @@
 pipeline {
 	agent any
-
-	environment {
-		DOCKER_IMAGE = "my-flask-app:${BUILD_ID}"
-	}
 	
 	stages {
 		stage('Checkout') {
@@ -14,16 +10,24 @@ pipeline {
 		stage('Install Dependencies') {
 			steps {
 				sh '''
+				# Use bash to enable 'source' command
+				bash -c "
 				python3 -m venv venv
 				source venv/bin/activate
-				python -m pip install --upgrade pip
+				pip install --upgrade pip
 				pip install -r requirements.txt
+				"
 				'''
 			}
 		}
 		stage('Run Tests') {
 			steps {
-				sh 'pytest tests/ --verbose || true '
+				sh '''
+				bash -c "
+				source venv/bin/activate
+				pytest tests/ --verbose
+				"
+				'''				
 			}
 		}
 		stage('Build Docker Image') {
@@ -32,7 +36,7 @@ pipeline {
 			}
 			steps {
 				script {
-					sh 'docker.build -t $DOCKER_IMAGE .'
+					sh 'docker.build -t my-flask-app:${BUILD_ID} .'
 				}
 			}	
 		}
@@ -41,7 +45,7 @@ pipeline {
 				branch 'main'
 			}
 			steps {
-				sh 'docker run -d -p 5000:5000 $DOCKER_IMAGE'
+				sh 'docker run -d -p 5000:5000 my-flask-app:${BUILD_ID}'
 			}
 		}
 	}
