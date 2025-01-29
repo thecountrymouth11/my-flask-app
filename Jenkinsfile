@@ -4,7 +4,7 @@ pipeline {
 	stages {
 		stage('Checkout') {
 			steps {
-				git 'https://github.com/thecountrymouth11/my-flask-app.git'
+				git url: 'https://github.com/thecountrymouth11/my-flask-app.git', branch: 'main'
 			}
 		}
 		stage('Install Dependencies') {
