@@ -3,6 +3,7 @@ pipeline {
 	
 	environment {
 		DOCKER_IMAGE = "my-flask-app:${BUILD_ID}"
+		PYTHONPATH = "${WORKSPACE}"
 	}
 	
 	stages {
@@ -30,6 +31,7 @@ pipeline {
 				sh '''
 				bash -c "
 				source venv/bin/activate
+				export PYTHONPATH=${WORKSPACE}
 				pytest tests/ --verbose || true
 				"
 				'''				
